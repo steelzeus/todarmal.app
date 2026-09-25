@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todarmal — Nation Building</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="login" class="login-box">
+  <h2 style="margin-bottom:14px">Todarmal Nation-Building</h2>
+  <p class="small" style="margin-bottom:12px">Enter your country's access code from your brochure.</p>
+  <div class="row"><input id="codeInput" type="text" placeholder="Access code" style="width:100%;text-transform:uppercase"></div>
+  <button class="primary" style="width:100%;margin-top:6px" onclick="doLogin()">Enter</button>
+  <div id="loginMsg"></div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div><b id="countryName"></b> <span class="meta" id="roundLabel"></span></div>
+    <div class="meta">Treasury: <b id="treasuryTop" style="color:#fff"></b> mohurs</div>
+  </div>
+  <div class="wrap">
+    <div id="frozenBanner" style="display:none" class="msg err">The game is frozen. All actions are locked.</div>
+
+    <div class="tabs">
+      <button id="tabBuildBtn" onclick="showTab('build')">Round 1 — Build</button>
+      <button id="tabTradeBtn" onclick="showTab('trade')">Round 2 — Trade</button>
+      <button id="tabBoardBtn" onclick="showTab('board')">Leaderboard</button>
+      <button id="tabCrisisBtn" onclick="showTab('crisis')">Your Crisis</button>
+    </div>
+
+    <div id="tab-build">
+      <div class="grid3">
+        <div class="card">
+          <h2>Your resources</h2>
+          <div id="resourceList"></div>
+        </div>
+        <div class="card">
+          <h2>Capacity</h2>
+          <div id="capacityBox"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="ghost" onclick="buildFactory()">Build new factory (<span id="newFactoryCost"></span> mohurs)</button>
+          </div>
+          <div id="factoryList"></div>
+        </div>
+        <div class="card">
+          <h2>Extract a resource</h2>
+          <div class="row">
+            <label>Resource</label>
+            <select id="extractResource"></select>
+          </div>
+          <div class="row">
+            <label>Quantity</label>
+            <input id="extractQty" type="number" min="1" value="10">
+          </div>
+          <div class="row"><span class="small" id="extractCostHint"></span></div>
+          <button class="primary" onclick="doExtract()">Extract</button>
+          <div id="extractMsg"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Manufacture a product</h2>
+        <div class="row">
+          <label>Product</label>
+          <select id="produceProduct" onchange="renderRecipeHint()"></select>
+          <label>Quantity</label>
+          <input id="produceQty" type="number" min="1" value="1">
+          <button class="primary" onclick="doProduce()">Manufacture</button>
+        </div>
+        <div id="recipeHint" class="small" style="margin-top:6px"></div>
+        <div id="produceMsg"></div>
+      </div>
+
+      <div class="card">
+        <h2>Your inventory</h2>
+        <table id="invTable"><thead><tr><th>Item</th><th>Quantity</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div id="tab-trade" style="display:none">
+      <div class="grid2">
+        <div class="card">
+          <h2>Export / import capacity</h2>
+          <div id="tradeCapBox"></div>
+          <button class="ghost" style="margin-top:8px" onclick="upgradeTradeCapacity()">Upgrade capacity</button>
+          <div id="tradeCapMsg"></div>
+        </div>
+        <div class="card">
+          <h2>List something to sell</h2>
+          <div class="row"><label>Item</label><select id="listItem"></select></div>
+          <div class="row"><label>Quantity</label><input id="listQty" type="number" min="1" value="1"></div>
+          <div class="row"><label>Asking price</label><input id="listPrice" type="number" min="0" value="10"></div>
+          <button class="primary" onclick="doList()">List on market</button>
+          <div id="listMsg"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Open market</h2>
+        <table id="marketTable"><thead><tr><th>Seller</th><th>Item</th><th>Qty</th><th>Ask price</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Your listings</h2>
+        <table id="myListingsTable"><thead><tr><th>Item</th><th>Qty left</th><th>Ask</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Recent trades</h2>
+        <table id="tradesTable"><thead><tr><th>Buyer</th><th>Seller</th><th>Item</th><th>Qty</th><th>Total</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div id="tab-board" style="display:none">
+      <div class="card">
+        <h2>Leaderboard</h2>
+        <p class="small" id="boardNote"></p>
+        <table id="boardTable"><thead><tr><th>#</th><th>Country</th><th>Round 1 estimate</th><th>Treasury</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div id="tab-crisis" style="display:none">
+      <div class="card">
+        <h2>Your private crisis</h2>
+        <p>This is not shown to any other team.</p>
+        <div id="crisisBox" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/team.js"></script>
+</body>
+</html>

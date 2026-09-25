@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todarmal — Admin</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="login" class="login-box">
+  <h2 style="margin-bottom:14px">Admin panel</h2>
+  <div class="row"><input id="pwInput" type="text" placeholder="Admin password" style="width:100%"></div>
+  <button class="primary" style="width:100%;margin-top:6px" onclick="doLogin()">Enter</button>
+  <div id="loginMsg"></div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="topbar">
+    <b>Todarmal Admin</b>
+    <div class="row" style="gap:10px">
+      <span class="meta">Round: <b id="roundNow" style="color:#fff"></b></span>
+      <button class="ghost" onclick="setRound(1)">Set Round 1</button>
+      <button class="ghost" onclick="setRound(2)">Set Round 2</button>
+      <button class="ghost" onclick="freezeGame()">Freeze</button>
+      <button class="ghost" onclick="unfreezeGame()">Unfreeze</button>
+      <button class="ghost" onclick="if(confirm('This wipes ALL data and reseeds defaults. Sure?')) resetAll()">Reset all data</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div id="frozenBanner" style="display:none" class="msg err">Game is FROZEN.</div>
+
+    <div class="card">
+      <h2>All teams</h2>
+      <table id="teamsTable">
+        <thead><tr><th>Country</th><th>Code</th><th>Treasury</th><th>Round-1 est.</th><th>Capacity</th><th>Trade used</th><th>Crisis</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Edit a country's resources & crisis</h2>
+      <p class="small">Handpick these so no country can fully solve its own crisis alone.</p>
+      <div class="row">
+        <label>Country</label><select id="assignTeam"></select>
+      </div>
+      <div class="row">
+        <label>Resource 1</label><select id="assignRes1"></select>
+        <label>Resource 2</label><select id="assignRes2"></select>
+        <label>Resource 3</label><select id="assignRes3"></select>
+      </div>
+      <div class="row">
+        <label>Crisis</label><select id="assignCrisis"></select>
+      </div>
+      <button class="primary" onclick="saveAssign()">Save assignment</button>
+      <div id="assignMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Edit treasury (corrections)</h2>
+      <div class="row">
+        <label>Country</label><select id="editTeam"></select>
+        <label>New treasury</label><input id="editTreasury" type="number">
+        <button class="primary" onclick="saveTreasury()">Save</button>
+      </div>
+      <div id="editMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Team audit (for Round 3 position papers)</h2>
+      <div class="row">
+        <label>Country</label><select id="auditTeam"></select>
+        <button class="ghost" onclick="loadAudit()">Load audit</button>
+        <button class="ghost" onclick="downloadExport()">Download full export (JSON)</button>
+      </div>
+      <pre id="auditBox" style="white-space:pre-wrap;font-size:12.5px;max-height:420px;overflow:auto;background:var(--band);padding:10px;border-radius:6px"></pre>
+    </div>
+
+    <div class="card">
+      <h2>All trades</h2>
+      <table id="tradesTable"><thead><tr><th>Buyer</th><th>Seller</th><th>Item</th><th>Qty</th><th>Total</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script src="/admin.js"></script>
+</body>
+</html>
