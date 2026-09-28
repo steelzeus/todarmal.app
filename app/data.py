@@ -176,26 +176,25 @@ CRISES = {
 
 # 15 countries with the event team's FINALIZED resource/crisis assignment
 # (confirmed 2026-09-24 — this is their own final call, not an AI-generated
-# draft). Country names aren't decided yet, so C1-C15 are placeholders for
-# display names; each country has its own access code below. Renaming them
-# for the real event is the ONLY change needed here — nothing else in this
-# file or in main.py refers to a country name directly.
+# draft). Country display names and their separate access codes are listed
+# below. Resource and crisis assignments are kept here as the event team's
+# finalized setup; the rest of the code refers to countries by their data.
 _COUNTRY_SETUP = [
-    ("C1",  ["farm_produce", "fish", "lithium"],           "blackout",             "UVAW9E"),
-    ("C2",  ["farm_produce", "stone_sand", "freshwater"],  "fuel_shortage",        "HPXZSP"),
-    ("C3",  ["farm_produce", "stone_sand", "rare_earths"], "heatwave",             "UMHSDN"),
-    ("C4",  ["farm_produce", "freshwater", "bauxite"],     "transport_failure",    "7VS44S"),
-    ("C5",  ["timber", "stone_sand", "rare_earths"],       "industrial_accident",  "R6AUJA"),
-    ("C6",  ["timber", "coal", "rare_earths"],             "cyberattack",           "XNXB8A"),
-    ("C7",  ["timber", "crude_oil", "lithium"],            "refugee_influx",        "45MGM9"),
-    ("C8",  ["fish", "freshwater", "bauxite"],             "toxic_spill",           "NTJJWB"),
-    ("C9",  ["fish", "coal", "copper_ore"],                "currency_shock",        "32UN3N"),
-    ("C10", ["fish", "iron_ore", "crude_oil"],             "famine",                "8VNSVH"),
-    ("C11", ["stone_sand", "iron_ore", "natural_gas"],     "disease",               "Z6QBB3"),
-    ("C12", ["freshwater", "crude_oil", "bauxite"],        "coastal_storm",         "EM885U"),
-    ("C13", ["coal", "iron_ore", "bauxite"],               "comms_blackout",       "8KHG36"),
-    ("C14", ["natural_gas", "copper_ore", "lithium"],      "drought",               "EN54V7"),
-    ("C15", ["natural_gas", "copper_ore", "rare_earths"],  "housing_collapse",     "C4HCWQ"),
+    ("Matsyadhara",  ["farm_produce", "fish", "lithium"],           "blackout",             "UVAW9E"),
+    ("Annashila",    ["farm_produce", "stone_sand", "freshwater"],  "fuel_shortage",        "HPXZSP"),
+    ("Ratnashail",   ["farm_produce", "stone_sand", "rare_earths"], "heatwave",             "UMHSDN"),
+    ("Jaldhaan",     ["farm_produce", "freshwater", "bauxite"],     "transport_failure",    "7VS44S"),
+    ("Vanshail",     ["timber", "stone_sand", "rare_earths"],       "industrial_accident",  "R6AUJA"),
+    ("Koylavan",     ["timber", "coal", "rare_earths"],             "cyberattack",           "XNXB8A"),
+    ("Vanratna",     ["timber", "crude_oil", "lithium"],            "refugee_influx",        "45MGM9"),
+    ("Matsyaneer",   ["fish", "freshwater", "bauxite"],             "toxic_spill",           "NTJJWB"),
+    ("Tamrameen",    ["fish", "coal", "copper_ore"],                "currency_shock",        "32UN3N"),
+    ("Matsyaloh",    ["fish", "iron_ore", "crude_oil"],             "famine",                "8VNSVH"),
+    ("Lohagiri",     ["stone_sand", "iron_ore", "natural_gas"],     "disease",               "Z6QBB3"),
+    ("Jaltej",       ["freshwater", "crude_oil", "bauxite"],        "coastal_storm",         "EM885U"),
+    ("Lohkhan",      ["coal", "iron_ore", "bauxite"],               "comms_blackout",       "8KHG36"),
+    ("Urjaratna",    ["natural_gas", "copper_ore", "lithium"],      "drought",               "EN54V7"),
+    ("Dhaturatna",   ["natural_gas", "copper_ore", "rare_earths"],  "housing_collapse",     "C4HCWQ"),
 ]
 
 COUNTRIES = []

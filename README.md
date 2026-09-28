@@ -59,11 +59,9 @@ automatically on first run. Back it up by just copying that file.
 
 ## Before the event — what you must still do
 
-1. **Country names.** All 15 countries currently show as `C1`–`C15` (both
-   display name and login code) — that's the event team's finalized
-   resource/crisis table, just without real names yet. Send me the names
-   whenever they're settled and I'll drop them into `app/data.py` — it's a
-   one-line-per-country edit, nothing else in the code needs to change.
+1. **Country names.** The 15 countries have assigned display names and
+  separate login codes. Their finalized resource/crisis assignments are in
+  `app/data.py`.
 2. **Change `ADMIN_PASSWORD`** in `app/data.py`.
 3. **Sanity-check the extraction costs and recipes** in `app/data.py`
    against what you actually want — they're transcribed from our design
