@@ -19,7 +19,10 @@
 <div id="app" style="display:none">
   <div class="topbar">
     <div><b id="countryName"></b> <span class="meta" id="roundLabel"></span></div>
-    <div class="meta">Treasury: <b id="treasuryTop" style="color:#fff"></b> mohurs</div>
+    <div class="topbar-actions">
+      <div class="meta">Treasury: <b id="treasuryTop" style="color:#fff"></b> mohurs</div>
+      <button class="logout-btn" onclick="doLogout()">Log out</button>
+    </div>
   </div>
   <div class="wrap">
     <div id="frozenBanner" style="display:none" class="msg err">The game is frozen. All actions are locked.</div>

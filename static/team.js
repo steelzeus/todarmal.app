@@ -34,6 +34,12 @@ async function doLogin() {
   }
 }
 
+function doLogout() {
+  localStorage.removeItem('todarmal_code');
+  TEAM_CODE = '';
+  location.reload();
+}
+
 async function boot() {
   REF = await api('/api/reference');
   await refresh();
