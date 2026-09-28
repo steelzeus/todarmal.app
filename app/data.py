@@ -177,30 +177,30 @@ CRISES = {
 # 15 countries with the event team's FINALIZED resource/crisis assignment
 # (confirmed 2026-09-24 — this is their own final call, not an AI-generated
 # draft). Country names aren't decided yet, so C1-C15 are placeholders for
-# both display name and access code. Renaming them for the real event is
-# the ONLY change needed here — nothing else in this file or in main.py
-# refers to a country name directly.
+# display names; each country has its own access code below. Renaming them
+# for the real event is the ONLY change needed here — nothing else in this
+# file or in main.py refers to a country name directly.
 _COUNTRY_SETUP = [
-    ("C1",  ["farm_produce", "fish", "lithium"],           "blackout"),
-    ("C2",  ["farm_produce", "stone_sand", "freshwater"],  "fuel_shortage"),
-    ("C3",  ["farm_produce", "stone_sand", "rare_earths"], "heatwave"),
-    ("C4",  ["farm_produce", "freshwater", "bauxite"],     "transport_failure"),
-    ("C5",  ["timber", "stone_sand", "rare_earths"],       "industrial_accident"),
-    ("C6",  ["timber", "coal", "rare_earths"],             "cyberattack"),
-    ("C7",  ["timber", "crude_oil", "lithium"],            "refugee_influx"),
-    ("C8",  ["fish", "freshwater", "bauxite"],             "toxic_spill"),
-    ("C9",  ["fish", "coal", "copper_ore"],                "currency_shock"),
-    ("C10", ["fish", "iron_ore", "crude_oil"],             "famine"),
-    ("C11", ["stone_sand", "iron_ore", "natural_gas"],     "disease"),
-    ("C12", ["freshwater", "crude_oil", "bauxite"],        "coastal_storm"),
-    ("C13", ["coal", "iron_ore", "bauxite"],               "comms_blackout"),
-    ("C14", ["natural_gas", "copper_ore", "lithium"],      "drought"),
-    ("C15", ["natural_gas", "copper_ore", "rare_earths"],  "housing_collapse"),
+    ("C1",  ["farm_produce", "fish", "lithium"],           "blackout",             "UVAW9E"),
+    ("C2",  ["farm_produce", "stone_sand", "freshwater"],  "fuel_shortage",        "HPXZSP"),
+    ("C3",  ["farm_produce", "stone_sand", "rare_earths"], "heatwave",             "UMHSDN"),
+    ("C4",  ["farm_produce", "freshwater", "bauxite"],     "transport_failure",    "7VS44S"),
+    ("C5",  ["timber", "stone_sand", "rare_earths"],       "industrial_accident",  "R6AUJA"),
+    ("C6",  ["timber", "coal", "rare_earths"],             "cyberattack",           "XNXB8A"),
+    ("C7",  ["timber", "crude_oil", "lithium"],            "refugee_influx",        "45MGM9"),
+    ("C8",  ["fish", "freshwater", "bauxite"],             "toxic_spill",           "NTJJWB"),
+    ("C9",  ["fish", "coal", "copper_ore"],                "currency_shock",        "32UN3N"),
+    ("C10", ["fish", "iron_ore", "crude_oil"],             "famine",                "8VNSVH"),
+    ("C11", ["stone_sand", "iron_ore", "natural_gas"],     "disease",               "Z6QBB3"),
+    ("C12", ["freshwater", "crude_oil", "bauxite"],        "coastal_storm",         "EM885U"),
+    ("C13", ["coal", "iron_ore", "bauxite"],               "comms_blackout",       "8KHG36"),
+    ("C14", ["natural_gas", "copper_ore", "lithium"],      "drought",               "EN54V7"),
+    ("C15", ["natural_gas", "copper_ore", "rare_earths"],  "housing_collapse",     "C4HCWQ"),
 ]
 
 COUNTRIES = []
-for name, res, crisis in _COUNTRY_SETUP:
-    COUNTRIES.append({"name": name, "resources": res, "crisis": crisis, "access_code": name})
+for name, res, crisis, access_code in _COUNTRY_SETUP:
+    COUNTRIES.append({"name": name, "resources": res, "crisis": crisis, "access_code": access_code})
 
 STARTING_TREASURY = 1000
 STARTING_POPULATION = 1_000_000
@@ -218,3 +218,5 @@ TRADE_CAPACITY_TIERS = [  # (tier number, cost, capacity AFTER buying this tier)
 ]
 
 ADMIN_PASSWORD = "todarmal2026"  # change before the event
+MAX_SESSIONS_PER_TEAM = 1
+SESSION_TIMEOUT_SECONDS = 90

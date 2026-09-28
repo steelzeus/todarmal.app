@@ -1,5 +1,7 @@
 import os
 import json
+import secrets
+import time
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -34,19 +36,17 @@ def require_not_frozen(conn):
     return st
 
 
-def team_by_code(conn, code):
-    row = conn.execute("SELECT * FROM teams WHERE access_code=?", (code,)).fetchone()
-    if not row:
-        raise HTTPException(401, "Unknown access code.")
-    return row
-
-
-def get_team_auth(x_team_code: str = Header(default=None)):
-    if not x_team_code:
-        raise HTTPException(401, "Missing X-Team-Code header.")
+def get_team_auth(x_session_token: str = Header(default=None)):
+    if not x_session_token:
+        raise HTTPException(401, "Your session ended. Someone else may have logged in with this code.")
     conn = dbm.get_conn()
     try:
-        team = team_by_code(conn, x_team_code)
+        session = conn.execute("SELECT team_id FROM sessions WHERE token=?", (x_session_token,)).fetchone()
+        if not session:
+            raise HTTPException(401, "Your session ended. Someone else may have logged in with this code.")
+        conn.execute("UPDATE sessions SET last_seen=? WHERE token=?", (time.time(), x_session_token))
+        conn.commit()
+        team = conn.execute("SELECT * FROM teams WHERE id=?", (session["team_id"],)).fetchone()
         return dict(team)
     finally:
         conn.close()
@@ -164,6 +164,14 @@ class EditTeamReq(BaseModel):
     treasury: float | None = None
 
 
+class LoginReq(BaseModel):
+    code: str
+
+
+class ReleaseSessionsReq(BaseModel):
+    team_id: int
+
+
 # ------------------------------------------------------------------ static reference data
 
 @app.get("/api/reference")
@@ -181,6 +189,49 @@ def reference():
 
 
 # ------------------------------------------------------------------ team state
+
+@app.post("/api/login")
+def api_login(req: LoginReq):
+    code = req.code.strip().upper()
+    conn = dbm.get_conn()
+    try:
+        team = conn.execute("SELECT * FROM teams WHERE access_code=?", (code,)).fetchone()
+        if not team:
+            raise HTTPException(401, "Unknown access code.")
+        now = time.time()
+        conn.execute(
+            "DELETE FROM sessions WHERE team_id=? AND last_seen < ?",
+            (team["id"], now - data.SESSION_TIMEOUT_SECONDS),
+        )
+        count = conn.execute("SELECT COUNT(*) FROM sessions WHERE team_id=?", (team["id"],)).fetchone()[0]
+        if count >= data.MAX_SESSIONS_PER_TEAM:
+            conn.commit()
+            raise HTTPException(
+                409,
+                "This country is already logged in on another device. Ask your teammate to log out, "
+                "or ask an organizer to release the session.",
+            )
+        token = secrets.token_urlsafe(24)
+        conn.execute(
+            "INSERT INTO sessions (token, team_id, created_at, last_seen) VALUES (?, ?, ?, ?)",
+            (token, team["id"], now, now),
+        )
+        conn.commit()
+        return {"token": token, "name": team["name"]}
+    finally:
+        conn.close()
+
+
+@app.post("/api/logout")
+def api_logout(x_session_token: str = Header(default=None)):
+    conn = dbm.get_conn()
+    try:
+        if x_session_token:
+            conn.execute("DELETE FROM sessions WHERE token=?", (x_session_token,))
+            conn.commit()
+        return {"ok": True}
+    finally:
+        conn.close()
 
 @app.get("/api/state")
 def api_state(team=Depends(get_team_auth)):
@@ -484,6 +535,7 @@ def admin_teams(_=Depends(get_admin_auth)):
     conn = dbm.get_conn()
     try:
         teams = conn.execute("SELECT * FROM teams ORDER BY id").fetchall()
+        active_since = time.time() - data.SESSION_TIMEOUT_SECONDS
         out = []
         for t in teams:
             pub = team_public_state(conn, t)
@@ -491,8 +543,23 @@ def admin_teams(_=Depends(get_admin_auth)):
             pub["resources"] = [r["resource_id"] for r in res_rows]
             pub["crisis_id"] = t["crisis_id"]
             pub["access_code"] = t["access_code"]
+            pub["active_sessions"] = conn.execute(
+                "SELECT COUNT(*) FROM sessions WHERE team_id=? AND last_seen >= ?",
+                (t["id"], active_since),
+            ).fetchone()[0]
             out.append(pub)
         return out
+    finally:
+        conn.close()
+
+
+@app.post("/api/admin/release_sessions")
+def admin_release_sessions(req: ReleaseSessionsReq, _=Depends(get_admin_auth)):
+    conn = dbm.get_conn()
+    try:
+        conn.execute("DELETE FROM sessions WHERE team_id=?", (req.team_id,))
+        conn.commit()
+        return {"ok": True}
     finally:
         conn.close()
 
@@ -622,7 +689,7 @@ def admin_reset(_=Depends(get_admin_auth)):
     """Wipes ALL game data and re-seeds from data.py. Irreversible — for testing only."""
     conn = dbm.get_conn()
     try:
-        for tbl in ["trades", "market_listings", "event_log", "inventory", "factories", "team_resources", "teams", "game_state"]:
+        for tbl in ["trades", "market_listings", "event_log", "inventory", "factories", "team_resources", "sessions", "teams", "game_state"]:
             conn.execute(f"DELETE FROM {tbl}")
         conn.commit()
         dbm.seed(conn)

@@ -25,6 +25,13 @@ CREATE TABLE IF NOT EXISTS teams (
     trade_tier INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS sessions (
+    token TEXT PRIMARY KEY,
+    team_id INTEGER NOT NULL REFERENCES teams(id),
+    created_at REAL NOT NULL,
+    last_seen REAL NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS team_resources (
     team_id INTEGER NOT NULL REFERENCES teams(id),
     resource_id TEXT NOT NULL,

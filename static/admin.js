@@ -56,6 +56,7 @@ async function refreshAll() {
     <td>${fmt(t.production_used)}/${fmt(t.capacity_total)}</td>
     <td>${fmt(t.trade_units_used)}/${fmt(t.trade_capacity)}</td>
     <td>${t.crisis_id}</td>
+    <td>${t.active_sessions} <button class="ghost" onclick="releaseSessions(${t.id})">Release</button></td>
     <td><button class="ghost" onclick="pickTeamFor(${t.id})">Select</button></td></tr>`).join('');
 
   ['assignTeam', 'editTeam', 'auditTeam'].forEach(id => {
@@ -89,6 +90,13 @@ function pickTeamFor(teamId) {
   document.getElementById('editTeam').value = teamId;
   document.getElementById('editTreasury').value = t.treasury;
   document.getElementById('auditTeam').value = teamId;
+}
+
+async function releaseSessions(teamId) {
+  try {
+    await api('/api/admin/release_sessions', {method: 'POST', body: JSON.stringify({team_id: teamId})});
+    await refreshAll();
+  } catch (e) { alert(e.message); }
 }
 
 async function ensureCrisisOptions() {

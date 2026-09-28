@@ -1,4 +1,4 @@
-let TEAM_CODE = localStorage.getItem('todarmal_code') || '';
+let SESSION_TOKEN = localStorage.getItem('todarmal_token') || '';
 let REF = null;      // static reference data (resources/products)
 let STATE = null;    // this team's live state
 let currentTab = 'build';
@@ -6,9 +6,17 @@ let currentTab = 'build';
 function fmt(n){ return (Math.round(n * 100) / 100).toLocaleString('en-IN'); }
 
 async function api(path, opts = {}) {
-  opts.headers = Object.assign({'Content-Type': 'application/json', 'X-Team-Code': TEAM_CODE}, opts.headers || {});
+  const headers = Object.assign({'Content-Type': 'application/json'}, opts.headers || {});
+  if (SESSION_TOKEN && path !== '/api/login') headers['X-Session-Token'] = SESSION_TOKEN;
+  opts.headers = headers;
   const res = await fetch(path, opts);
   const body = await res.json().catch(() => ({}));
+  if (res.status === 401 && path !== '/api/login') {
+    localStorage.removeItem('todarmal_token');
+    SESSION_TOKEN = '';
+    sessionStorage.setItem('todarmal_login_msg', body.detail || res.statusText);
+    location.reload();
+  }
   if (!res.ok) throw new Error(body.detail || res.statusText);
   return body;
 }
@@ -22,21 +30,24 @@ function flash(elId, text, ok) {
 async function doLogin() {
   const code = document.getElementById('codeInput').value.trim().toUpperCase();
   if (!code) return;
-  TEAM_CODE = code;
   try {
-    await api('/api/state');
-    localStorage.setItem('todarmal_code', code);
+    const result = await api('/api/login', {method: 'POST', body: JSON.stringify({code})});
+    SESSION_TOKEN = result.token;
+    localStorage.setItem('todarmal_token', SESSION_TOKEN);
     document.getElementById('login').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     await boot();
   } catch (e) {
-    document.getElementById('loginMsg').innerHTML = `<div class="msg err">${e.message}</div>`;
+    const message = document.getElementById('loginMsg');
+    message.innerHTML = '<div class="msg err"></div>';
+    message.firstChild.textContent = e.message;
   }
 }
 
-function doLogout() {
-  localStorage.removeItem('todarmal_code');
-  TEAM_CODE = '';
+async function doLogout() {
+  try { await api('/api/logout', {method: 'POST'}); } catch (e) {}
+  localStorage.removeItem('todarmal_token');
+  SESSION_TOKEN = '';
   location.reload();
 }
 
@@ -252,10 +263,21 @@ async function refreshLeaderboard() {
     `<tr><td>${i + 1}</td><td>${t.name}</td><td>${fmt(t.round1_estimate)}</td><td>${fmt(t.treasury)}</td></tr>`).join('');
 }
 
-if (TEAM_CODE) {
+const savedLoginMessage = sessionStorage.getItem('todarmal_login_msg');
+if (savedLoginMessage) {
+  const message = document.getElementById('loginMsg');
+  message.innerHTML = '<div class="msg err"></div>';
+  message.firstChild.textContent = savedLoginMessage;
+  sessionStorage.removeItem('todarmal_login_msg');
+}
+
+if (SESSION_TOKEN) {
   api('/api/state').then(() => {
     document.getElementById('login').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     boot();
-  }).catch(() => {});
+  }).catch(() => {
+    document.getElementById('login').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+  });
 }
