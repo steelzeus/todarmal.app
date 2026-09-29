@@ -203,8 +203,8 @@ for name, res, crisis, access_code in _COUNTRY_SETUP:
 
 STARTING_TREASURY = 1000
 STARTING_POPULATION = 1_000_000
-BASE_CAPACITY = 35
-FACTORY_BASE_CAPACITY = 35
+BASE_CAPACITY = 20
+FACTORY_BASE_CAPACITY = 20
 FACTORY_LEVEL_COST = {1: 10, 2: 20, 3: 30}   # cost to go FROM level-1 TO this level
 FACTORY_LEVEL_BONUS = 5                       # extra capacity per level, per factory
 NEW_FACTORY_COST = 80
