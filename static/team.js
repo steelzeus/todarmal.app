@@ -147,22 +147,33 @@ async function refresh() {
 
   document.getElementById('crisisBox').innerHTML = STATE.crisis ? `
     <h3 style="margin-bottom:6px">${STATE.crisis.name}</h3>
-    <p>${STATE.crisis.requirement_text || ''}</p>` : '';
+    <p>${STATE.crisis.requirement_text || ''}</p>` :
+    '<p>Your crisis will be revealed once Round 2 begins. Keep an eye on the Leaderboard tab for the round to change.</p>';
 
   if (currentTab === 'trade') refreshMarket();
 }
 
 function populateItemSelectsFromInventory() {
-  const sel = document.getElementById('listItem');
-  const prev = sel.value;
-  sel.innerHTML = '';
-  Object.entries(STATE.inventory || {}).forEach(([itemId, qty]) => {
-    if (qty <= 0) return;
-    const opt = document.createElement('option');
-    opt.value = itemId; opt.textContent = `${itemLabel(itemId)} (have ${fmt(qty)})`;
-    sel.appendChild(opt);
+  [document.getElementById('listItem'), document.getElementById('bankItem')].forEach(sel => {
+    const prev = sel.value;
+    sel.innerHTML = '';
+    Object.entries(STATE.inventory || {}).forEach(([itemId, qty]) => {
+      if (qty <= 0) return;
+      const opt = document.createElement('option');
+      opt.value = itemId; opt.textContent = `${itemLabel(itemId)} (have ${fmt(qty)})`;
+      sel.appendChild(opt);
+    });
+    if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
   });
-  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+  document.getElementById('bankItem').onchange = renderBankPriceHint;
+  renderBankPriceHint();
+}
+
+function renderBankPriceHint() {
+  const itemId = document.getElementById('bankItem').value;
+  const cost = REF.production_cost[itemId];
+  document.getElementById('bankPriceHint').textContent = cost === undefined ? '' :
+    `Sells for ${fmt(cost)} mohurs per unit`;
 }
 
 async function doExtract() {
@@ -216,6 +227,16 @@ async function doList() {
     flash('listMsg', 'Listed on the market.', true);
     await refresh(); await refreshMarket();
   } catch (e) { flash('listMsg', e.message, false); }
+}
+
+async function doBankSell() {
+  const item_id = document.getElementById('bankItem').value;
+  const qty = parseFloat(document.getElementById('bankQty').value);
+  try {
+    const r = await api('/api/bank/sell', {method: 'POST', body: JSON.stringify({item_id, qty})});
+    flash('bankMsg', `Sold to the bank for ${fmt(r.total)} mohurs.`, true);
+    await refresh(); await refreshMarket();
+  } catch (e) { flash('bankMsg', e.message, false); }
 }
 
 async function doDelist(id) {

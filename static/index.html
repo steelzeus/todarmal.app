@@ -115,6 +115,16 @@
         <h2>Recent trades</h2>
         <table id="tradesTable"><thead><tr><th>Buyer</th><th>Seller</th><th>Item</th><th>Qty</th><th>Total</th></tr></thead><tbody></tbody></table>
       </div>
+
+      <div class="card">
+        <h2>Bank — sell unsold goods</h2>
+        <p class="small">The bank always buys at production cost. Use this for anything you couldn't sell on the open market.</p>
+        <div class="row"><label>Item</label><select id="bankItem"></select></div>
+        <div class="row"><label>Quantity</label><input id="bankQty" type="number" min="1" value="1"></div>
+        <div class="row"><span class="small" id="bankPriceHint"></span></div>
+        <button class="primary" onclick="doBankSell()">Sell to bank</button>
+        <div id="bankMsg"></div>
+      </div>
     </div>
 
     <div id="tab-board" style="display:none">

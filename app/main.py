@@ -15,6 +15,7 @@ app = FastAPI(title="Todarmal Nation-Building")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static")
+PRODUCTION_COST_CACHE = {}
 
 
 @app.on_event("startup")
@@ -96,6 +97,20 @@ def product_ref_value(product_id):
     return (p["sell_low"] + p["sell_high"]) / 2
 
 
+def production_cost(item_id):
+    if item_id in PRODUCTION_COST_CACHE:
+        return PRODUCTION_COST_CACHE[item_id]
+    kind, item = item_id.split(":", 1)
+    if kind == "res":
+        cost = data.RESOURCES[item][1]
+    elif kind == "prod":
+        cost = sum(qty * production_cost(input_id) for input_id, qty in data.PRODUCTS[item]["inputs"])
+    else:
+        raise KeyError(item_id)
+    PRODUCTION_COST_CACHE[item_id] = cost
+    return cost
+
+
 def team_public_state(conn, team_row):
     team_id = team_row["id"]
     inv_rows = conn.execute("SELECT item_id, qty FROM inventory WHERE team_id=?", (team_id,)).fetchall()
@@ -143,6 +158,11 @@ class ListReq(BaseModel):
     ask_price: float
 
 
+class BankSellReq(BaseModel):
+    item_id: str
+    qty: float
+
+
 class BuyReq(BaseModel):
     listing_id: int
     qty: float
@@ -179,6 +199,10 @@ def reference():
     return {
         "resources": {k: {"name": v[0], "extraction_cost": v[1]} for k, v in data.RESOURCES.items()},
         "products": data.PRODUCTS,
+        "production_cost": {
+            **{f"res:{resource_id}": production_cost(f"res:{resource_id}") for resource_id in data.RESOURCES},
+            **{f"prod:{product_id}": production_cost(f"prod:{product_id}") for product_id in data.PRODUCTS},
+        },
         "factory_level_cost": data.FACTORY_LEVEL_COST,
         "factory_bonus": data.FACTORY_LEVEL_BONUS,
         "base_capacity": data.BASE_CAPACITY,
@@ -240,11 +264,10 @@ def api_state(team=Depends(get_team_auth)):
         row = conn.execute("SELECT * FROM teams WHERE id=?", (team["id"],)).fetchone()
         st = get_state(conn)
         res_rows = conn.execute("SELECT resource_id FROM team_resources WHERE team_id=?", (team["id"],)).fetchall()
-        crisis = data.CRISES.get(row["crisis_id"], {})
         out = team_public_state(conn, row)
         out["resources"] = [r["resource_id"] for r in res_rows]
-        out["crisis"] = {"id": row["crisis_id"], **crisis}
         out["round"] = int(st.get("round", "1"))
+        out["crisis"] = {"id": row["crisis_id"], **data.CRISES.get(row["crisis_id"], {})} if out["round"] >= 2 else None
         out["frozen"] = st.get("frozen") == "1"
         return out
     finally:
@@ -491,6 +514,28 @@ def api_market_buy(req: BuyReq, team=Depends(get_team_auth)):
                                                "qty": req.qty, "total_price": total_price, "counterparty": buyer["name"]})
         conn.commit()
         return {"ok": True, "total_price": total_price}
+    finally:
+        conn.close()
+
+
+@app.post("/api/bank/sell")
+def api_bank_sell(req: BankSellReq, team=Depends(get_team_auth)):
+    if req.qty <= 0:
+        raise HTTPException(400, "Quantity must be positive.")
+    conn = dbm.get_conn()
+    try:
+        st = require_not_frozen(conn)
+        if st.get("round") != "2":
+            raise HTTPException(400, "The bank only buys in Round 2.")
+        have = inv_get(conn, team["id"], req.item_id)
+        if have < req.qty - 1e-9:
+            raise HTTPException(400, f"Not enough {req.item_id} to sell — have {have}.")
+        total = req.qty * production_cost(req.item_id)
+        inv_add(conn, team["id"], req.item_id, -req.qty)
+        conn.execute("UPDATE teams SET treasury = treasury + ? WHERE id=?", (total, team["id"]))
+        log(conn, team["id"], "bank_sell", {"item_id": req.item_id, "qty": req.qty, "total": total})
+        conn.commit()
+        return {"ok": True, "total": total}
     finally:
         conn.close()
 
