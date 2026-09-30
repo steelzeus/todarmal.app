@@ -174,20 +174,16 @@ CRISES = {
     "refugee_influx": {"name": "Refugee influx", "requirement_text": "50 packaged food + 30 treated water + 25 cement."},
 }
 
-# 15 countries with the event team's FINALIZED resource/crisis assignment
+# 11 countries with the event team's FINALIZED resource/crisis assignment
 # (confirmed 2026-09-24 — this is their own final call, not an AI-generated
 # draft). Country display names and their separate access codes are listed
 # below. Resource and crisis assignments are kept here as the event team's
 # finalized setup; the rest of the code refers to countries by their data.
 _COUNTRY_SETUP = [
     ("Matsyadhara",  ["farm_produce", "fish", "lithium"],           "blackout",             "UVAW9E"),
-    ("Annashila",    ["farm_produce", "stone_sand", "freshwater"],  "fuel_shortage",        "HPXZSP"),
-    ("Ratnashail",   ["farm_produce", "stone_sand", "rare_earths"], "heatwave",             "UMHSDN"),
-    ("Jaldhaan",     ["farm_produce", "freshwater", "bauxite"],     "transport_failure",    "7VS44S"),
     ("Vanshail",     ["timber", "stone_sand", "rare_earths"],       "industrial_accident",  "R6AUJA"),
     ("Koylavan",     ["timber", "coal", "rare_earths"],             "cyberattack",           "XNXB8A"),
     ("Vanratna",     ["timber", "crude_oil", "lithium"],            "refugee_influx",        "45MGM9"),
-    ("Matsyaneer",   ["fish", "freshwater", "bauxite"],             "toxic_spill",           "NTJJWB"),
     ("Tamrameen",    ["fish", "coal", "copper_ore"],                "currency_shock",        "32UN3N"),
     ("Matsyaloh",    ["fish", "iron_ore", "crude_oil"],             "famine",                "8VNSVH"),
     ("Lohagiri",     ["stone_sand", "iron_ore", "natural_gas"],     "disease",               "Z6QBB3"),
